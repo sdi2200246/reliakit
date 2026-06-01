@@ -51,4 +51,33 @@ mod tests {
     fn display_empty() {
         assert_eq!(PrimitiveError::Empty.to_string(), "value must not be empty");
     }
+
+    #[test]
+    fn display_too_short() {
+        assert_eq!(
+            PrimitiveError::TooShort { min: 3, actual: 1 }.to_string(),
+            "value is too short: minimum is 3, actual is 1"
+        );
+    }
+
+    #[test]
+    fn display_too_long() {
+        assert_eq!(
+            PrimitiveError::TooLong { max: 5, actual: 8 }.to_string(),
+            "value is too long: maximum is 5, actual is 8"
+        );
+    }
+
+    #[test]
+    fn display_out_of_range() {
+        assert_eq!(
+            PrimitiveError::OutOfRange {
+                min: 1,
+                max: 100,
+                actual: 200
+            }
+            .to_string(),
+            "value is out of range: expected 1..=100, actual is 200"
+        );
+    }
 }

@@ -240,4 +240,48 @@ mod tests {
             "1.50 GB"
         );
     }
+
+    #[test]
+    fn percent_try_from_u8() {
+        assert_eq!(Percent::try_from(50u8).unwrap().get(), 50);
+        assert!(Percent::try_from(101u8).is_err());
+    }
+
+    #[test]
+    fn percent_from_into_u8() {
+        let p = Percent::new(75).unwrap();
+        let v: u8 = p.into();
+        assert_eq!(v, 75);
+    }
+
+    #[test]
+    fn port_try_from_u16() {
+        assert_eq!(Port::try_from(8080u16).unwrap().get(), 8080);
+        assert!(Port::try_from(0u16).is_err());
+    }
+
+    #[test]
+    fn port_from_into_u16() {
+        let p = Port::new(443).unwrap();
+        let v: u16 = p.into();
+        assert_eq!(v, 443);
+    }
+
+    #[test]
+    fn port_display() {
+        assert_eq!(Port::new(8080).unwrap().to_string(), "8080");
+    }
+
+    #[test]
+    fn byte_size_from_u64() {
+        let s = ByteSize::from(2048u64);
+        assert_eq!(s.as_bytes(), 2048);
+    }
+
+    #[test]
+    fn byte_size_into_u64() {
+        let s = ByteSize::from_bytes(4096);
+        let v: u64 = s.into();
+        assert_eq!(v, 4096);
+    }
 }

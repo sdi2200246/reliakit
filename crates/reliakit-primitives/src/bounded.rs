@@ -115,6 +115,7 @@ impl<const MIN: usize, const MAX: usize> From<BoundedStr<MIN, MAX>> for String {
 mod tests {
     use super::BoundedStr;
     use crate::PrimitiveError;
+    use alloc::string::{String, ToString};
 
     #[test]
     fn accepts_valid_length() {
@@ -166,5 +167,61 @@ mod tests {
                 actual: 4
             }
         );
+    }
+
+    #[test]
+    fn into_inner_returns_string() {
+        let value = BoundedStr::<3, 10>::new("hello").unwrap();
+        assert_eq!(value.into_inner(), "hello");
+    }
+
+    #[test]
+    fn is_empty_returns_false_for_valid() {
+        let value = BoundedStr::<3, 10>::new("hello").unwrap();
+        assert!(!value.is_empty());
+    }
+
+    #[test]
+    fn display_formats_inner_string() {
+        let value = BoundedStr::<3, 10>::new("hello").unwrap();
+        assert_eq!(value.to_string(), "hello");
+    }
+
+    #[test]
+    fn as_ref_returns_str() {
+        let value = BoundedStr::<3, 10>::new("hello").unwrap();
+        let s: &str = value.as_ref();
+        assert_eq!(s, "hello");
+    }
+
+    #[test]
+    fn deref_to_str() {
+        let value = BoundedStr::<3, 10>::new("hello").unwrap();
+        assert_eq!(&*value, "hello");
+    }
+
+    #[test]
+    fn try_from_string() {
+        let value = BoundedStr::<3, 10>::try_from(String::from("hello")).unwrap();
+        assert_eq!(value.as_str(), "hello");
+    }
+
+    #[test]
+    fn try_from_str_ref() {
+        let value = BoundedStr::<3, 10>::try_from("hello").unwrap();
+        assert_eq!(value.as_str(), "hello");
+    }
+
+    #[test]
+    fn from_bounded_str_into_string() {
+        let value = BoundedStr::<3, 10>::new("hello").unwrap();
+        let s = String::from(value);
+        assert_eq!(s, "hello");
+    }
+
+    #[test]
+    fn allows_zero_min_whitespace_only() {
+        let value = BoundedStr::<0, 5>::new("   ").unwrap();
+        assert_eq!(value.as_str(), "   ");
     }
 }

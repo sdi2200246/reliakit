@@ -88,6 +88,7 @@ impl From<NonEmptyStr> for String {
 mod tests {
     use super::NonEmptyStr;
     use crate::PrimitiveError;
+    use alloc::string::{String, ToString};
 
     #[test]
     fn accepts_valid_strings() {
@@ -110,5 +111,55 @@ mod tests {
     fn preserves_original_string() {
         let value = NonEmptyStr::new("  api  ").unwrap();
         assert_eq!(value.as_str(), "  api  ");
+    }
+
+    #[test]
+    fn into_inner_returns_string() {
+        let value = NonEmptyStr::new("hello").unwrap();
+        assert_eq!(value.into_inner(), "hello");
+    }
+
+    #[test]
+    fn len_returns_byte_length() {
+        let value = NonEmptyStr::new("hello").unwrap();
+        assert_eq!(value.len(), 5);
+    }
+
+    #[test]
+    fn display_formats_inner_string() {
+        let value = NonEmptyStr::new("hello").unwrap();
+        assert_eq!(value.to_string(), "hello");
+    }
+
+    #[test]
+    fn as_ref_returns_str() {
+        let value = NonEmptyStr::new("hello").unwrap();
+        let s: &str = value.as_ref();
+        assert_eq!(s, "hello");
+    }
+
+    #[test]
+    fn deref_to_str() {
+        let value = NonEmptyStr::new("hello").unwrap();
+        assert_eq!(&*value, "hello");
+    }
+
+    #[test]
+    fn try_from_string() {
+        let value = NonEmptyStr::try_from(String::from("hello")).unwrap();
+        assert_eq!(value.as_str(), "hello");
+    }
+
+    #[test]
+    fn try_from_str_ref() {
+        let value = NonEmptyStr::try_from("hello").unwrap();
+        assert_eq!(value.as_str(), "hello");
+    }
+
+    #[test]
+    fn from_non_empty_str_into_string() {
+        let value = NonEmptyStr::new("hello").unwrap();
+        let s = String::from(value);
+        assert_eq!(s, "hello");
     }
 }
