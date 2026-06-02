@@ -18,9 +18,20 @@ alloc = []
 
 [dependencies]
 
+# Dev-only: used by the service_config example to demonstrate the crates
+# working together. These do not affect the runtime dependencies of the
+# published library, which remain zero.
+[dev-dependencies]
+reliakit-secret = { path = "../reliakit-secret", version = "0.1" }
+reliakit-validate = { path = "../reliakit-validate", version = "0.1" }
+
 [[example]]
 name = "primitives_basic"
 path = "examples/primitives_basic.rs"
+
+[[example]]
+name = "service_config"
+path = "examples/service_config.rs"
 
 [lints]
 workspace = true

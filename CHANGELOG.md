@@ -6,6 +6,28 @@ This project follows normal Rust crate versioning. Crate releases may use a
 workspace tag such as `vMAJOR.MINOR.PATCH` or a crate-specific tag such as
 `CRATE-vMAJOR.MINOR.PATCH`.
 
+## Unreleased
+
+### Added
+
+- `reliakit-primitives`: added the `service_config` example, demonstrating
+  `reliakit-primitives`, `reliakit-secret`, and `reliakit-validate` working
+  together. The library's runtime dependencies remain zero; the secret and
+  validate crates are dev-dependencies used only by the example.
+
+### Changed
+
+- Rewrote the workspace `README.md` with "Why Reliakit?", "When should I use
+  this?", and a before/after section; corrected the workspace layout, status,
+  and roadmap to reflect all published crates.
+
+## reliakit-primitives 0.2.4 - 2026-06-02
+
+### Changed
+
+- Release-automation and version-tagging verification. No functional or API
+  changes from `0.2.3`.
+
 ## reliakit-primitives 0.2.3 - 2026-06-02
 
 ### Fixed

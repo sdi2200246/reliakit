@@ -4,7 +4,7 @@
 
 # Reliakit
 
-Reusable Rust primitives and utility crates for building correct, safe, and reliable libraries and applications.
+Small, composable reliability primitives for Rust libraries and applications.
 
 [![CI](https://github.com/satyakwok/reliakit/actions/workflows/ci.yml/badge.svg)](https://github.com/satyakwok/reliakit/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/satyakwok/reliakit/branch/main/graph/badge.svg)](https://codecov.io/gh/satyakwok/reliakit)
@@ -13,11 +13,76 @@ Reusable Rust primitives and utility crates for building correct, safe, and reli
 [![GitHub issues](https://img.shields.io/github/issues/satyakwok/reliakit)](https://github.com/satyakwok/reliakit/issues)
 [![Last commit](https://img.shields.io/github/last-commit/satyakwok/reliakit)](https://github.com/satyakwok/reliakit/commits/main)
 
-Reliakit is a Rust workspace for reusable reliability primitives and utility crates.
+Reliakit is a Rust workspace of focused crates that make common invariants
+explicit in the type system. Validate a value once, near the boundary, then
+carry the proof of that validation in its type — instead of passing unchecked
+`String`, `u16`, or `f64` values through your code.
 
-It focuses on small, composable building blocks for writing correct, safe, and reliable Rust libraries and applications.
+Each crate is small, dependency-free at runtime, `#![forbid(unsafe_code)]`, and
+usable independently.
 
-Each crate is designed to be usable independently.
+## Why Reliakit?
+
+- **Validate once, at the boundary.** Construct a typed value where data enters
+  your program (config, request, CLI, environment) and never re-check it again.
+- **Carry invariants in types.** A `Port` is always `1..=65535`; a
+  `BoundedStr<3, 32>` always has 3–32 characters. Function signatures document
+  and enforce these rules for you.
+- **Fewer unchecked strings and numbers.** Replace raw `String`/`u16`/`u8` with
+  types that cannot hold invalid states.
+- **No framework lock-in.** No runtime, no macros required, no global state.
+  Reliakit is plain types and traits you can adopt one at a time.
+- **Small independent crates.** Take only what you need. Each crate compiles
+  fast and has zero runtime dependencies.
+
+## When should I use this?
+
+Reliakit is most useful at the edges of your program, where untrusted or
+loosely-typed data becomes domain data:
+
+- **Config parsing** — turn a TOML/JSON/env value into a `Port`, `Percent`, or
+  `BoundedStr` once, and fail early with a clear error.
+- **CLI input** — validate flags and arguments into typed values before they
+  reach your logic.
+- **API payload validation** — collect every field error at once with
+  `reliakit-validate` and return a precise message per field.
+- **Service settings** — model "must have between 1 and 10 endpoints" with
+  `BoundedVec`, or "this must be non-empty" with `NonEmptyStr`.
+- **Safe diagnostic / log output** — wrap secrets in `SecretString` so they
+  show as `[REDACTED]` in `Debug`, `Display`, logs, and error reports.
+
+## Before / After
+
+Before — every field can hold an invalid state, and the API key can leak into
+logs through `Debug`:
+
+```rust
+struct ServiceConfig {
+    name: String,      // could be empty or 500 chars
+    port: u16,         // could be 0
+    error_budget: u8,  // could be 250
+    api_key: String,   // leaks in {:?} / logs
+}
+```
+
+After — invalid states are unrepresentable, and the secret never appears in
+output:
+
+```rust
+use reliakit_primitives::{BoundedStr, Percent, Port};
+use reliakit_secret::SecretString;
+
+struct ServiceConfig {
+    name: BoundedStr<3, 32>, // always 3–32 characters
+    port: Port,              // always 1..=65535
+    error_budget: Percent,   // always 0..=100
+    api_key: SecretString,   // redacted in Debug/Display
+}
+```
+
+See [`examples/service_config.rs`](./crates/reliakit-primitives/examples/service_config.rs)
+for a complete, runnable version that combines primitives, secret redaction, and
+struct-level validation.
 
 ## Crates
 
@@ -79,15 +144,11 @@ Implemented types:
 
 ### `reliakit-core`
 
-Planned.
-
-Shared core types, traits, and errors used across Reliakit crates.
+Planned. Shared core types, traits, and errors used across Reliakit crates.
 
 ### `reliakit-derive`
 
-Planned.
-
-Derive macros for validation and constrained types.
+Planned. Derive macros for validation and constrained types.
 
 ## Installation
 
@@ -97,14 +158,17 @@ From crates.io:
 [dependencies]
 reliakit-primitives = "0.2"
 reliakit-secret = "0.1"
+reliakit-validate = "0.1"
+reliakit-collections = "0.1"
 ```
+
+Add only the crates you need — each is usable independently.
 
 Or depend on the Git repository directly:
 
 ```toml
 [dependencies]
 reliakit-primitives = { git = "https://github.com/satyakwok/reliakit", package = "reliakit-primitives" }
-reliakit-secret = { git = "https://github.com/satyakwok/reliakit", package = "reliakit-secret" }
 ```
 
 ## MSRV
@@ -157,18 +221,23 @@ Reliakit is not:
 - a replacement for `hashbrown`,
 - a replacement for `syn`.
 
-Reliakit is intended to provide focused primitives and utility crates, not replace mature ecosystem foundations.
+Reliakit provides focused primitives and utility crates; it does not replace
+mature ecosystem foundations.
 
 ## Workspace Layout
 
 ```text
 reliakit/
-|-- crates/
-|   `-- reliakit-primitives/
-|       `-- examples/
-|-- Cargo.toml
-|-- README.md
-`-- LICENSE
+├── crates/
+│   ├── reliakit-primitives/
+│   │   └── examples/
+│   ├── reliakit-secret/
+│   │   └── examples/
+│   ├── reliakit-validate/
+│   └── reliakit-collections/
+├── Cargo.toml
+├── README.md
+└── LICENSE
 ```
 
 ## Status
@@ -176,28 +245,30 @@ reliakit/
 Active. Reliakit is published as a real Rust library workspace and follows
 normal Rust crate versioning.
 
-The current focus is a small, well-tested `reliakit-primitives` crate before
-adding more workspace crates.
+`reliakit-primitives`, `reliakit-secret`, `reliakit-validate`, and
+`reliakit-collections` are published to crates.io. APIs may receive
+compatible refinements before a `1.0` release.
 
 Logo assets are stored under [`assets/`](./assets/).
 
 ## Roadmap
 
-Current:
+Published:
 
 - `reliakit-primitives`
 - `reliakit-secret`
+- `reliakit-validate`
+- `reliakit-collections`
 
 Planned:
 
 - `reliakit-core`
-- `reliakit-collections`
-- `reliakit-validate`
 - `reliakit-derive`
 
 ## Contributing
 
-Contributions are welcome. Please open an issue before submitting a pull request for non-trivial changes so the direction can be discussed first.
+Contributions are welcome. Please open an issue before submitting a pull request
+for non-trivial changes so the direction can be discussed first.
 
 - Keep each crate minimal and focused.
 - Add tests for any new public API surface.
@@ -219,4 +290,4 @@ See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for contribution guidelines,
 
 ## License
 
-Licensed under the MIT License. See `LICENSE`.
+Licensed under the MIT License. See [`LICENSE`](./LICENSE).
