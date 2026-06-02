@@ -1,0 +1,26 @@
+[package]
+name = "reliakit-secret"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+readme = "README.md"
+description = "Secret-safe wrappers for Rust values that should not leak through formatting or diagnostics."
+keywords = ["secret", "redaction", "security", "privacy", "no-std"]
+categories = ["authentication", "config", "no-std", "rust-patterns"]
+
+[features]
+default = ["std"]
+std = []
+alloc = []
+
+[dependencies]
+
+[[example]]
+name = "secret_basic"
+path = "examples/secret_basic.rs"
+
+[lints]
+workspace = true

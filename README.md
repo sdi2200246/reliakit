@@ -54,9 +54,15 @@ Shared core types, traits, and errors used across Reliakit crates.
 
 ### `reliakit-secret`
 
-Planned.
+Secret-safe wrappers for values that should not leak through `Debug`, `Display`,
+logs, reports, or diagnostic output.
 
-Secret-safe wrappers for values that should not leak through `Debug`, logs, reports, or diagnostic output.
+Implemented types:
+
+- `Secret<T>`
+- `SecretString`
+- `ExposeSecret<T>`
+- `ExposeSecretMut<T>`
 
 ### `reliakit-collections`
 
@@ -85,11 +91,11 @@ From crates.io:
 reliakit-primitives = "0.2"
 ```
 
-Or depend on the Git repository directly:
+The unreleased workspace crates can be used from Git:
 
 ```toml
 [dependencies]
-reliakit-primitives = { git = "https://github.com/satyakwok/reliakit", package = "reliakit-primitives" }
+reliakit-secret = { git = "https://github.com/satyakwok/reliakit", package = "reliakit-secret" }
 ```
 
 ## MSRV
@@ -100,12 +106,17 @@ Reliakit currently supports Rust `1.85` and newer.
 
 ```rust
 use reliakit_primitives::{BoundedStr, Percent, Port};
+use reliakit_secret::{ExposeSecret, SecretString};
 
 type ServiceName = BoundedStr<3, 32>;
 
 let name = ServiceName::new("api-service")?;
 let success_rate = Percent::new(99)?;
 let port = Port::new(8080)?;
+let api_key = SecretString::from_string("rk_live_example");
+
+assert_eq!(api_key.to_string(), "[REDACTED]");
+assert_eq!(api_key.expose_secret(), "rk_live_example");
 ```
 
 ## Design Goals
@@ -166,11 +177,11 @@ Logo assets are stored under [`assets/`](./assets/).
 Current:
 
 - `reliakit-primitives`
+- `reliakit-secret`
 
 Planned:
 
 - `reliakit-core`
-- `reliakit-secret`
 - `reliakit-collections`
 - `reliakit-validate`
 - `reliakit-derive`

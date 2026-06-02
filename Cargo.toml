@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "crates/reliakit-primitives",
+    "crates/reliakit-secret",
 ]
 resolver = "2"
 

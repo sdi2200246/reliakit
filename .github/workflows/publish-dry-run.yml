@@ -15,5 +15,8 @@ jobs:
       - name: Install stable Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Publish dry run
+      - name: Publish reliakit-primitives dry run
         run: cargo publish -p reliakit-primitives --dry-run
+
+      - name: Publish reliakit-secret dry run
+        run: cargo publish -p reliakit-secret --dry-run

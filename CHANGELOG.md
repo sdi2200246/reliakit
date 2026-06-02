@@ -5,6 +5,17 @@ All notable changes to this workspace are documented here.
 This project follows normal Rust crate versioning. Crate releases are tagged as
 `vMAJOR.MINOR.PATCH`.
 
+## Unreleased
+
+### Added
+
+- Added the `reliakit-secret` crate with:
+  - `Secret<T>`
+  - `SecretString`
+  - `ExposeSecret<T>`
+  - `ExposeSecretMut<T>`
+- Added a `secret_basic` example.
+
 ## 0.2.1 - 2026-06-02
 
 ### Changed
