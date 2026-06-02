@@ -16,7 +16,7 @@ This project follows normal Rust crate versioning. Crate releases are tagged as
   - `ExposeSecretMut<T>`
 - Added a `secret_basic` example.
 
-## 0.2.1 - 2026-06-02
+## reliakit-primitives 0.2.1 - 2026-06-02
 
 ### Changed
 
@@ -32,7 +32,7 @@ This project follows normal Rust crate versioning. Crate releases are tagged as
 - Rejected empty email domain labels such as `user@example..com`.
 - Fixed the root README Star History embed.
 
-## 0.2.0 - 2026-06-02
+## reliakit-primitives 0.2.0 - 2026-06-02
 
 ### Added
 
@@ -58,7 +58,7 @@ This project follows normal Rust crate versioning. Crate releases are tagged as
 - Fixed SemVer pre-release ordering and numeric identifier comparison.
 - Rejected HTTP(S) URLs with missing hosts such as `https:///path`.
 
-## 0.1.0 - 2026-06-01
+## reliakit-primitives 0.1.0 - 2026-06-01
 
 ### Added
 

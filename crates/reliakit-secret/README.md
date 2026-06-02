@@ -6,6 +6,7 @@ diagnostics.
 [![Crates.io](https://img.shields.io/crates/v/reliakit-secret.svg)](https://crates.io/crates/reliakit-secret)
 [![Docs.rs](https://docs.rs/reliakit-secret/badge.svg)](https://docs.rs/reliakit-secret)
 [![CI](https://github.com/satyakwok/reliakit/actions/workflows/ci.yml/badge.svg)](https://github.com/satyakwok/reliakit/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/satyakwok/reliakit/branch/main/graph/badge.svg?flag=reliakit-secret)](https://codecov.io/gh/satyakwok/reliakit/tree/main/crates/reliakit-secret)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/satyakwok/reliakit/blob/main/LICENSE)
 
 `reliakit-secret` provides `Secret<T>`, a small wrapper that redacts its inner
