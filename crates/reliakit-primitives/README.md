@@ -209,7 +209,7 @@ This crate is `#![forbid(unsafe_code)]`.
 
 ## Minimum Supported Rust Version
 
-Rust stable. No nightly features are used.
+Rust `1.85` and newer. No nightly features are used.
 
 ## Status
 

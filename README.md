@@ -23,15 +23,28 @@ Each crate is designed to be usable independently.
 
 ### `reliakit-primitives` — [crates.io](https://crates.io/crates/reliakit-primitives) · [docs.rs](https://docs.rs/reliakit-primitives)
 
-Type-safe primitives for constrained values such as non-empty strings, bounded strings, percentages, ports, and byte sizes.
+Type-safe primitives for constrained values such as non-empty strings, bounded
+strings, slugs, email addresses, HTTP URLs, percentages, ports, byte sizes,
+semantic versions, UUIDs, and human-readable durations.
 
 Implemented types:
 
 - `NonEmptyStr`
 - `BoundedStr`
+- `Slug`
+- `Email`
+- `HttpUrl`
+- `HexString`
 - `Percent`
+- `PercentageF64`
 - `Port`
+- `PositiveInt`
+- `PositiveFloat`
 - `ByteSize`
+- `NonEmptyVec<T>`
+- `SemVer`
+- `Uuid`
+- `HumanDuration`
 
 ### `reliakit-core`
 
@@ -78,6 +91,10 @@ Or depend on the Git repository directly:
 [dependencies]
 reliakit-primitives = { git = "https://github.com/satyakwok/reliakit", package = "reliakit-primitives" }
 ```
+
+## MSRV
+
+Reliakit currently supports Rust `1.85` and newer.
 
 ## Example
 
