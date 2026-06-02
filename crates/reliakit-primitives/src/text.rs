@@ -93,7 +93,8 @@ impl TryFrom<String> for Slug {
 /// Email address with basic structural validation.
 ///
 /// Checks: exactly one `@`, non-empty local part and domain, domain contains
-/// at least one `.`, no whitespace. Not a full RFC 5321 validator.
+/// at least one `.`, domain labels are non-empty, no whitespace. Not a full
+/// RFC 5321 validator.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Email(String);
 
@@ -145,7 +146,7 @@ fn is_valid_email(s: &str) -> bool {
     if local.is_empty() || domain.is_empty() {
         return false;
     }
-    if !domain.contains('.') || domain.starts_with('.') || domain.ends_with('.') {
+    if !domain.contains('.') || domain.split('.').any(str::is_empty) {
         return false;
     }
     true
@@ -401,6 +402,13 @@ mod tests {
     #[test]
     fn email_rejects_no_dot_in_domain() {
         assert!(Email::new("user@nodot").is_err());
+    }
+
+    #[test]
+    fn email_rejects_empty_domain_labels() {
+        assert!(Email::new("user@example..com").is_err());
+        assert!(Email::new("user@.example.com").is_err());
+        assert!(Email::new("user@example.com.").is_err());
     }
 
     #[test]
