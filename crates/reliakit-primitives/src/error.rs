@@ -1,6 +1,7 @@
 use core::fmt;
 
 /// Error returned when a primitive value fails validation.
+#[non_exhaustive]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PrimitiveError {
     /// The value was empty or contained only whitespace.
@@ -11,6 +12,8 @@ pub enum PrimitiveError {
     TooLong { max: usize, actual: usize },
     /// The value was outside the inclusive allowed range.
     OutOfRange { min: u128, max: u128, actual: u128 },
+    /// The value did not match the expected format or pattern.
+    Invalid { message: &'static str },
 }
 
 /// Result alias used by Reliakit primitive constructors.
@@ -35,6 +38,7 @@ impl fmt::Display for PrimitiveError {
                     "value is out of range: expected {min}..={max}, actual is {actual}"
                 )
             }
+            Self::Invalid { message } => write!(f, "invalid value: {message}"),
         }
     }
 }
@@ -78,6 +82,17 @@ mod tests {
             }
             .to_string(),
             "value is out of range: expected 1..=100, actual is 200"
+        );
+    }
+
+    #[test]
+    fn display_invalid() {
+        assert_eq!(
+            PrimitiveError::Invalid {
+                message: "bad format"
+            }
+            .to_string(),
+            "invalid value: bad format"
         );
     }
 }

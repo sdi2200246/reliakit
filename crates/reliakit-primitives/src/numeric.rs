@@ -166,9 +166,138 @@ impl From<ByteSize> for u64 {
     }
 }
 
+// ── PositiveInt ───────────────────────────────────────────────────────────────
+
+/// Integer value strictly greater than zero.
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct PositiveInt(u64);
+
+impl PositiveInt {
+    /// Creates a `PositiveInt`. Returns `OutOfRange` if `value` is zero.
+    pub fn new(value: u64) -> PrimitiveResult<Self> {
+        if value == 0 {
+            return Err(PrimitiveError::OutOfRange {
+                min: 1,
+                max: u64::MAX as u128,
+                actual: 0,
+            });
+        }
+        Ok(Self(value))
+    }
+
+    pub const fn get(self) -> u64 {
+        self.0
+    }
+}
+
+impl fmt::Display for PositiveInt {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl TryFrom<u64> for PositiveInt {
+    type Error = PrimitiveError;
+
+    fn try_from(value: u64) -> Result<Self, Self::Error> {
+        Self::new(value)
+    }
+}
+
+impl From<PositiveInt> for u64 {
+    fn from(value: PositiveInt) -> Self {
+        value.get()
+    }
+}
+
+// ── PositiveFloat ─────────────────────────────────────────────────────────────
+
+/// Finite floating-point value strictly greater than zero.
+#[derive(Debug, Copy, Clone, PartialEq, PartialOrd)]
+pub struct PositiveFloat(f64);
+
+impl PositiveFloat {
+    /// Creates a `PositiveFloat`. Returns `Invalid` if `value` is not finite
+    /// or is not greater than zero.
+    pub fn new(value: f64) -> PrimitiveResult<Self> {
+        if !value.is_finite() || value <= 0.0 {
+            return Err(PrimitiveError::Invalid {
+                message: "value must be a finite positive number greater than zero",
+            });
+        }
+        Ok(Self(value))
+    }
+
+    pub fn get(self) -> f64 {
+        self.0
+    }
+}
+
+impl fmt::Display for PositiveFloat {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl TryFrom<f64> for PositiveFloat {
+    type Error = PrimitiveError;
+
+    fn try_from(value: f64) -> Result<Self, Self::Error> {
+        Self::new(value)
+    }
+}
+
+// ── PercentageF64 ─────────────────────────────────────────────────────────────
+
+/// Percentage value as `f64` in the range `0.0..=100.0`.
+///
+/// Use this when decimal precision is required. For integer percentages, use
+/// [`Percent`].
+#[derive(Debug, Copy, Clone, PartialEq, PartialOrd)]
+pub struct PercentageF64(f64);
+
+impl PercentageF64 {
+    pub const MIN: f64 = 0.0;
+    pub const MAX: f64 = 100.0;
+
+    /// Creates a `PercentageF64`. Returns `Invalid` if `value` is not finite
+    /// or is outside `0.0..=100.0`.
+    pub fn new(value: f64) -> PrimitiveResult<Self> {
+        if !value.is_finite() || !(Self::MIN..=Self::MAX).contains(&value) {
+            return Err(PrimitiveError::Invalid {
+                message: "percentage must be a finite number between 0.0 and 100.0 inclusive",
+            });
+        }
+        Ok(Self(value))
+    }
+
+    pub fn get(self) -> f64 {
+        self.0
+    }
+
+    /// Returns the value as a fraction between `0.0` and `1.0`.
+    pub fn as_fraction(self) -> f64 {
+        self.0 / 100.0
+    }
+}
+
+impl fmt::Display for PercentageF64 {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}%", self.0)
+    }
+}
+
+impl TryFrom<f64> for PercentageF64 {
+    type Error = PrimitiveError;
+
+    fn try_from(value: f64) -> Result<Self, Self::Error> {
+        Self::new(value)
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{ByteSize, Percent, Port};
+    use super::{ByteSize, Percent, PercentageF64, Port, PositiveFloat, PositiveInt};
     use crate::PrimitiveError;
     use alloc::string::ToString;
 
@@ -285,5 +414,94 @@ mod tests {
         let s = ByteSize::from_bytes(4096);
         let v: u64 = s.into();
         assert_eq!(v, 4096);
+    }
+
+    #[test]
+    fn positive_int_accepts_nonzero() {
+        assert_eq!(PositiveInt::new(1).unwrap().get(), 1);
+        assert_eq!(PositiveInt::new(u64::MAX).unwrap().get(), u64::MAX);
+    }
+
+    #[test]
+    fn positive_int_rejects_zero() {
+        assert!(PositiveInt::new(0).is_err());
+    }
+
+    #[test]
+    fn positive_int_display() {
+        assert_eq!(PositiveInt::new(42).unwrap().to_string(), "42");
+    }
+
+    #[test]
+    fn positive_int_try_from_and_into() {
+        let p = PositiveInt::try_from(10u64).unwrap();
+        let v: u64 = p.into();
+        assert_eq!(v, 10);
+    }
+
+    #[test]
+    fn positive_float_accepts_positive() {
+        assert_eq!(PositiveFloat::new(0.001).unwrap().get(), 0.001);
+        assert_eq!(PositiveFloat::new(f64::MAX).unwrap().get(), f64::MAX);
+    }
+
+    #[test]
+    fn positive_float_rejects_zero() {
+        assert!(PositiveFloat::new(0.0).is_err());
+    }
+
+    #[test]
+    fn positive_float_rejects_negative() {
+        assert!(PositiveFloat::new(-1.0).is_err());
+    }
+
+    #[test]
+    fn positive_float_rejects_nan() {
+        assert!(PositiveFloat::new(f64::NAN).is_err());
+    }
+
+    #[test]
+    fn positive_float_rejects_infinity() {
+        assert!(PositiveFloat::new(f64::INFINITY).is_err());
+    }
+
+    #[test]
+    fn positive_float_try_from() {
+        assert!(PositiveFloat::try_from(1.5f64).is_ok());
+        assert!(PositiveFloat::try_from(0.0f64).is_err());
+    }
+
+    #[test]
+    fn percentage_f64_accepts_boundaries() {
+        assert_eq!(PercentageF64::new(0.0).unwrap().get(), 0.0);
+        assert_eq!(PercentageF64::new(50.5).unwrap().get(), 50.5);
+        assert_eq!(PercentageF64::new(100.0).unwrap().get(), 100.0);
+    }
+
+    #[test]
+    fn percentage_f64_rejects_out_of_range() {
+        assert!(PercentageF64::new(-0.1).is_err());
+        assert!(PercentageF64::new(100.1).is_err());
+    }
+
+    #[test]
+    fn percentage_f64_rejects_nan() {
+        assert!(PercentageF64::new(f64::NAN).is_err());
+    }
+
+    #[test]
+    fn percentage_f64_as_fraction() {
+        assert_eq!(PercentageF64::new(25.0).unwrap().as_fraction(), 0.25);
+    }
+
+    #[test]
+    fn percentage_f64_display() {
+        assert_eq!(PercentageF64::new(42.5).unwrap().to_string(), "42.5%");
+    }
+
+    #[test]
+    fn percentage_f64_try_from() {
+        assert!(PercentageF64::try_from(50.0f64).is_ok());
+        assert!(PercentageF64::try_from(101.0f64).is_err());
     }
 }
