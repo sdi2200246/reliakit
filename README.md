@@ -6,8 +6,6 @@
 
 Reusable Rust primitives and utility crates for building correct, safe, and reliable libraries and applications.
 
-[![Crates.io](https://img.shields.io/crates/v/reliakit.svg)](https://crates.io/crates/reliakit)
-[![Docs.rs](https://docs.rs/reliakit/badge.svg)](https://docs.rs/reliakit)
 [![CI](https://github.com/satyakwok/reliakit/actions/workflows/ci.yml/badge.svg)](https://github.com/satyakwok/reliakit/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/satyakwok/reliakit/branch/main/graph/badge.svg)](https://codecov.io/gh/satyakwok/reliakit)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -24,6 +22,10 @@ Each crate is designed to be usable independently.
 ## Crates
 
 ### `reliakit-primitives`
+
+[![Crates.io](https://img.shields.io/crates/v/reliakit-primitives.svg)](https://crates.io/crates/reliakit-primitives)
+[![Crates.io Downloads](https://img.shields.io/crates/d/reliakit-primitives.svg)](https://crates.io/crates/reliakit-primitives)
+[![Docs.rs](https://docs.rs/reliakit-primitives/badge.svg)](https://docs.rs/reliakit-primitives)
 
 Type-safe primitives for constrained values such as non-empty strings, bounded strings, percentages, ports, and byte sizes.
 
